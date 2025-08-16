@@ -1,0 +1,31 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node / frontend
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Go
+bin/
+vendor/
+
+# Helm / K8s
+*.tgz
+chart.lock
+values.override.yaml
+.kube/
+.k8s/
+
+# Editors/IDE
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log

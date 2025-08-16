@@ -1,0 +1,13 @@
+name: ci (placeholder)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Add helm/kube lint steps later"
