@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: infrabin-servicemonitor
+  namespace: infrabin
+  labels:
+    app.kubernetes.io/name: infrabin
+    release: prometheus # This is the crucial label
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: infrabin
+  endpoints:
+    - port: http-metrics
+      interval: 15s
+      path: /stats/prometheus

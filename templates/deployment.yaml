@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "infrabin.fullname" . }}
+  labels:
+    {{- include "infrabin.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "infrabin.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        # This annotation tells Istio to automatically inject the sidecar proxy.
+        sidecar.istio.io/inject: "true"
+        sidecar.istio.io/proxy-stats-port: "15020"
+        sidecar.istio.io/proxy-stats-path: "/stats/prometheus"    
+      labels:
+        {{- include "infrabin.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          # These health checks are required for both Kubernetes and Istio.
+          # The liveness probe restarts the container if it becomes unhealthy.
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          # The readiness probe determines if the container is ready to accept traffic.
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5

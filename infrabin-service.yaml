@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: infrabin-svc
+  namespace: infrabin
+  labels:
+    app.kubernetes.io/name: infrabin
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+    - port: 15020
+      targetPort: 15020
+      protocol: TCP
+      name: http-metrics
+  selector:
+    app.kubernetes.io/name: infrabin

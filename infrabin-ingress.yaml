@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: infrabin-ingress
+  namespace: infrabin
+  annotations:
+    kubernetes.io/ingress.class: istio
+spec:
+  rules:
+  - host: infrabin.local
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: infrabin-svc
+            port:
+              name: http
