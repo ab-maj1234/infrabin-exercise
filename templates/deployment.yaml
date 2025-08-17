@@ -1,46 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "infrabin.fullname" . }}
+  name: infrabin-deployment
+  namespace: infrabin
   labels:
-    {{- include "infrabin.labels" . | nindent 4 }}
+    app.kubernetes.io/name: infrabin
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "infrabin.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: infrabin
   template:
     metadata:
       annotations:
-        # This annotation tells Istio to automatically inject the sidecar proxy.
         sidecar.istio.io/inject: "true"
-        sidecar.istio.io/proxy-stats-port: "15020"
-        sidecar.istio.io/proxy-stats-path: "/stats/prometheus"    
       labels:
-        {{- include "infrabin.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/name: infrabin
     spec:
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 8080
-              protocol: TCP
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          # These health checks are required for both Kubernetes and Istio.
-          # The liveness probe restarts the container if it becomes unhealthy.
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
-          # The readiness probe determines if the container is ready to accept traffic.
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
+      - name: infrabin
+        image: maruina/infrabin:fix-envoy-preflight
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: http-metrics
+          containerPort: 15020
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5

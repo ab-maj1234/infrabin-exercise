@@ -1,21 +1,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "infrabin.fullname" . }}
-  annotations:
-    prometheus.io/scrape: "true"
+  name: infrabin-svc
+  namespace: infrabin
   labels:
-    {{- include "infrabin.labels" . | nindent 4 }}
+    app.kubernetes.io/name: infrabin
 spec:
-  type: {{ .Values.service.type }}
   ports:
-  - port: 8080
-    targetPort: http
-    protocol: TCP
-    name: http
-  - port: 15020
-    targetPort: 15020
-    protocol: TCP
-    name: http-metrics
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+    - port: 15020
+      targetPort: 15020
+      protocol: TCP
+      name: http-metrics
   selector:
-    {{- include "infrabin.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/name: infrabin
