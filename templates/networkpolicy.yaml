@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "infrabin.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  # The pods this policy applies to
+  podSelector:
+    matchLabels:
+      {{- include "infrabin.selectorLabels" . | nindent 6 }}
+  # Define the ingress rules
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow traffic from the Istio Ingress Gateway
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            istio-system: "true"
+        podSelector:
+          matchLabels:
+            app: istio-ingressgateway
+      # Allow traffic from Prometheus
+      - namespaceSelector:
+          matchLabels:
+            prometheus: "true"
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: kube-prometheus-stack-prometheus

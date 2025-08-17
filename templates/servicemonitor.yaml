@@ -1,0 +1,19 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "infrabin.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "infrabin.labels" . | nindent 4 }}
+    # This label is critical for Prometheus to auto-discover this ServiceMonitor.
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      {{- include "infrabin.selectorLabels" . | nindent 6 }}
+  endpoints:
+  - port: http-metrics
+    interval: 15s
+    path: /stats/prometheus
+{{- end }}
